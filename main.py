@@ -24,11 +24,11 @@ def process_csv():
     if file.filename == "":
         return jsonify({"error": "No selected file"}), 400
 
-    # Extract original filename (without extension)
+    
     original_filename = os.path.splitext(file.filename)[0]
     output_filename = f"{original_filename}_clean_sales.json"
 
-    # Read uploaded CSV in memory
+    
     stream = io.StringIO(file.stream.read().decode("utf-8"))
     reader = csv.reader(stream)
 
@@ -37,17 +37,17 @@ def process_csv():
 
     for row in reader:
         if len(row) != 4:
-            continue  # Skip malformed rows
+            continue  
 
         product_id = row[0].strip()
 
-        # Clean product name
+        
         product_name = row[1].replace('"', '').strip()
 
-        # Clean country FIRST (important)
+        
         country = row[3].strip()
 
-        # Clean price
+        
         price_raw = row[2].replace('$', '').strip()
         try:
             price_usd = float(price_raw)
@@ -61,7 +61,7 @@ def process_csv():
 
         seen.add(dedup_key)
 
-        # Convert USD → INR
+        
         price_inr = round(price_usd * USD_TO_INR, 2)
 
         cleaned_data.append({
@@ -86,3 +86,4 @@ def process_csv():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
