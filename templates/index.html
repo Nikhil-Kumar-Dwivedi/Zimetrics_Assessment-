@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sales Data Cleaner</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #b6d3ef;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background: #ffffff;
+            padding: 30px;
+            width: 420px;
+            border-radius: 12px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 25px;
+            color: #b58900;
+            display: inline-block;
+            padding-bottom: 6px;
+            border-bottom: 3px solid #b58900;
+            font-weight: bold;
+        }
+
+        input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            margin: 15px 0;
+            border: 2px dashed #007bff;
+            border-radius: 6px;
+            cursor: pointer;
+            background: #f8f9fa;
+        }
+
+        input[type="file"]::file-selector-button {
+            padding: 8px 14px;
+            border: none;
+            background: #007bff;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+            font-weight: 500;
+        }
+
+        input[type="file"]::file-selector-button:hover {
+            background: #0056b3;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 12px;
+            font-weight: 500;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        #status {
+            margin-top: 18px;
+            font-size: 14px;
+            color: green;
+        }
+
+        #downloadBtn {
+            display: none;
+            margin-top: 15px;
+            background: #28a745;
+        }
+
+        #downloadBtn:hover {
+            background: #1e7e34;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Sales Data Cleaner</h2>
+
+    <input type="file" id="csvFile" accept=".csv">
+
+    <select id="conversion">
+        <option value="usd_inr">USD → INR</option>
+    </select>
+
+    <button onclick="generateData()">Generate Clean Sales Data</button>
+
+    <button id="downloadBtn">Download Clean JSON</button>
+
+    <div id="status"></div>
+</div>
+
+<script>
+    let downloadedBlob = null;
+    let downloadedFilename = "clean_sales.json";
+
+    function generateData() {
+        const fileInput = document.getElementById("csvFile");
+        const statusDiv = document.getElementById("status");
+        const downloadBtn = document.getElementById("downloadBtn");
+
+        if (!fileInput.files.length) {
+            alert("Please upload a CSV file first.");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("file", fileInput.files[0]);
+
+        statusDiv.innerText = "Processing file...";
+        statusDiv.style.color = "green";
+        downloadBtn.style.display = "none";
+
+        fetch("/process", {
+            method: "POST",
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Processing failed");
+            }
+
+            const disposition = response.headers.get("Content-Disposition");
+            if (disposition && disposition.includes("filename=")) {
+                downloadedFilename = disposition
+                    .split("filename=")[1]
+                    .replace(/"/g, "");
+            }
+
+            return response.blob();
+        })
+        .then(blob => {
+            downloadedBlob = blob;
+            statusDiv.innerText = "Clean sales data generated successfully!";
+            downloadBtn.style.display = "block";
+        })
+        .catch(error => {
+            statusDiv.innerText = "Error processing file.";
+            statusDiv.style.color = "red";
+        });
+    }
+
+    document.getElementById("downloadBtn").onclick = function () {
+        const url = window.URL.createObjectURL(downloadedBlob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = downloadedFilename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+    };
+</script>
+
+</body>
+</html>
