@@ -28,7 +28,7 @@ http://127.0.0.1:5000
 ## 3. The Logic (How I Thought)
 
 ### Why did I choose this approach?
-I chose a Flask-based approach to keep the solution lightweight, easy to run locally, and user-friendly. Instead of writing a standalone script, I added a simple UI that allows users to upload CSV files directly from their system, process them in memory, and download the cleaned JSON output without storing unnecessary files on disk. This mirrors real-world ETL workflows while staying within the problem constraints.
+I chose a Flask-based approach to keep the solution lightweight, easy to run locally, and user-friendly. I added a simple UI that allows users to upload CSV files directly from their system, process them in memory, and download the cleaned JSON output without storing unnecessary files on disk. This mirrors real-world ETL workflows while staying within the problem constraints.
 
 ### Core Processing Steps
 - Read uploaded CSV data in memory
@@ -60,7 +60,7 @@ seen.add(dedup_key)
 ```
 
 ### What was the hardest bug you faced, and how did you fix it?
-The most challenging part was handling deduplication correctly. Initially, records were removed even when the same product and price appeared in different countries. To fix this, I refined the deduplication logic to include the country field as part of the composite key. This ensured that only truly identical records were removed while preserving valid regional variations. I also validated each row carefully to ensure malformed or invalid entries did not break processing.
+The most challenging part was handling deduplication correctly. Initially, records were removed even when the same product and price appeared in different countries. To fix this, I refined the deduplication logic to include the country field as part of the composite key. This ensured that only truly identical records were removed while preserving valid regional variations. 
 
 ---
 
@@ -84,8 +84,8 @@ The following screenshots demonstrate that the application works as expected:
 ## 5. Future Improvements
 
 If I had two more days, I would add the following enhancements:
-- Compare uploaded CSV files with previously processed outputs.
 - Export cleaned data in CSV and Excel formats in addition to JSON.
+- Compare uploaded CSV with the newly created files.
 - Support multiple international currency conversions.
 - Maintain a processing history to track all uploaded and generated files.
 
